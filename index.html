@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ardoise — Devis et factures en deux minutes</title>
-<meta name="description" content="Créez des devis et factures conformes (TVA 19,25 %, montant en lettres, acompte), aperçu A4 en direct, export PDF. Données conservées sur votre appareil.">
+<meta name="description" content="Créez des devis et factures conformes (TVA 20 %, mentions légales, montant en lettres, acompte), aperçu A4 en direct, export PDF. Données conservées sur votre appareil.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d4f4a'/%3E%3Cpath d='M9 22h14M9 16h14M9 10h9' stroke='%23f3ede1' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
@@ -156,8 +156,8 @@ table.t{width:100%;border-collapse:collapse}
         <label class="f w">Adresse<input data-b="emetteur.adresse"></label>
         <label class="f">Téléphone<input data-b="emetteur.tel"></label>
         <label class="f">E-mail<input data-b="emetteur.mail"></label>
-        <label class="f">N° contribuable (NIU)<input data-b="emetteur.niu"></label>
-        <label class="f">RCCM<input data-b="emetteur.rccm"></label>
+        <label class="f">SIRET<input data-b="emetteur.niu"></label>
+        <label class="f">N° TVA intracommunautaire<input data-b="emetteur.rccm"></label>
       </div>
     </div>
     <div class="sec"><h3>Client</h3>
@@ -165,7 +165,7 @@ table.t{width:100%;border-collapse:collapse}
         <label class="f w">Nom ou société<input data-b="client.nom" list="clients"></label>
         <label class="f w">Adresse<input data-b="client.adresse"></label>
         <label class="f">Contact<input data-b="client.contact"></label>
-        <label class="f">NIU (facultatif)<input data-b="client.niu"></label>
+        <label class="f">SIRET (facultatif)<input data-b="client.niu"></label>
       </div>
       <datalist id="clients"></datalist>
     </div>
@@ -174,7 +174,7 @@ table.t{width:100%;border-collapse:collapse}
         <label class="f">Numéro<input data-b="numero"></label>
         <label class="f">Date<input type="date" data-b="date"></label>
         <label class="f" id="echL">Validité (jours)<input type="number" min="1" data-b="delai"></label>
-        <label class="f">Devise<select data-b="devise"><option value="XAF">FCFA (XAF)</option><option value="EUR">Euro (EUR)</option><option value="USD">Dollar (USD)</option></select></label>
+        <label class="f">Devise<select data-b="devise"><option value="EUR">Euro (EUR)</option><option value="GBP">Livre sterling (GBP)</option><option value="CHF">Franc suisse (CHF)</option><option value="USD">Dollar (USD)</option></select></label>
         <label class="f w">Objet<input data-b="objet"></label>
       </div>
     </div>
@@ -184,8 +184,8 @@ table.t{width:100%;border-collapse:collapse}
       <div class="cat" id="cat"></div>
     </div>
     <div class="sec"><h3>Taxes et conditions</h3>
-      <div class="sw">TVA 19,25 % (17,5 % + CAC)<input type="checkbox" class="tg" data-b="tva"></div>
-      <div class="sw">Retenue à la source (précompte 5,5 %)<input type="checkbox" class="tg" data-b="precompte"></div>
+      <div class="sw">TVA 20 %<input type="checkbox" class="tg" data-b="tva"></div>
+      <div class="sw">Retenue de garantie (5 %)<input type="checkbox" class="tg" data-b="precompte"></div>
       <div class="g" style="margin-top:6px">
         <label class="f">Remise globale (%)<input type="number" min="0" max="100" step="0.5" data-b="remise"></label>
         <label class="f">Acompte demandé (%)<input type="number" min="0" max="100" step="5" data-b="acompte"></label>
@@ -221,30 +221,30 @@ function cent(n,fin){ // 0..999
 function lettres(n){n=Math.round(n);if(!n)return'zéro';let out=[],g=[[1e9,'milliard'],[1e6,'million'],[1e3,'mille']];
   for(const[v,w]of g){const q=Math.floor(n/v);if(q){out.push(w==='mille'?(q===1?'mille':cent(q,false)+' mille'):cent(q,true)+' '+w+(q>1?'s':''));n%=v}}
   if(n)out.push(cent(n,true));return out.join(' ')}
-const DEV={XAF:{n:'francs CFA',d:0,s:'F CFA'},EUR:{n:'euros',d:2,s:'€'},USD:{n:'dollars',d:2,s:'$'}};
+const DEV={EUR:{n:'euros',d:2,s:'€'},GBP:{n:'livres sterling',d:2,s:'£'},CHF:{n:'francs suisses',d:2,s:'CHF'},USD:{n:'dollars',d:2,s:'$'}};
 const fmt=(v,c=doc.devise)=>v.toLocaleString('fr-FR',{minimumFractionDigits:DEV[c].d,maximumFractionDigits:DEV[c].d}).replace(/ /g,' ')+' '+DEV[c].s;
 const COL=['#0d4f4a','#1d3a8a','#7c2d12','#3f3f46','#86198f'];
-const CAT=[['Création de logo','Trois pistes, deux allers-retours, fichiers sources',150000],['Site vitrine 5 pages','Responsive, référencement de base, formulaire',650000],['Hébergement + domaine (1 an)','Nom de domaine .cm, certificat SSL',60000],['Maintenance mensuelle','Mises à jour, sauvegardes, 2 h de modifications',45000],['Shooting produit','20 photos retouchées, fond neutre',120000]];
+const CAT=[['Création de logo','Trois pistes, deux allers-retours, fichiers sources',800],['Site vitrine 5 pages','Responsive, référencement de base, formulaire',3200],['Hébergement + domaine (1 an)','Nom de domaine .fr, certificat SSL',190],['Maintenance mensuelle','Mises à jour, sauvegardes, 2 h de modifications',250],['Shooting produit','20 photos retouchées, fond neutre',650]];
 
 // ——— État ———
 const today=()=>new Date().toISOString().slice(0,10);
-const base=()=>({id:'d'+Date.now(),kind:'devis',numero:'',date:today(),delai:30,devise:'XAF',objet:'Refonte du site internet et identité visuelle',tpl:'classique',col:COL[0],statut:'brouillon',tva:true,precompte:false,remise:0,acompte:40,logo:'',
-  emetteur:{nom:'Studio Makossa SARL',adresse:'Rue Joss, Bonanjo, Douala',tel:'+237 6 99 12 34 56',mail:'bonjour@studiomakossa.cm',niu:'M092312345678A',rccm:'RC/DLA/2021/B/4521'},
-  client:{nom:'Brasseries du Littoral',adresse:'Zone industrielle de Bassa, Douala',contact:'Mme Carine Ebongue',niu:''},
-  paiement:'Virement (Afriland First Bank) ou Orange Money / MTN MoMo',note:'Merci pour votre confiance. Le planning démarre à réception de l\'acompte.',
-  lignes:[{l:'Atelier de cadrage',d:'Une demi-journée avec votre équipe marketing',q:1,p:180000},{l:'Identité visuelle',d:'Logo, palette, typographies, charte de 12 pages',q:1,p:450000},{l:'Site vitrine 6 pages',d:'Design sur mesure, responsive, bilingue FR / EN',q:1,p:900000},{l:'Rédaction des contenus',d:'Par page, optimisée pour le référencement',q:6,p:25000}]});
-let store;try{store=JSON.parse(localStorage.getItem('ardoise'))}catch(e){}
+const base=()=>({id:'d'+Date.now(),kind:'devis',numero:'',date:today(),delai:30,devise:'EUR',objet:'Refonte du site internet et identité visuelle',tpl:'classique',col:COL[0],statut:'brouillon',tva:true,precompte:false,remise:0,acompte:40,logo:'',
+  emetteur:{nom:'Studio Makossa SAS',adresse:'12 rue de la Roquette, 75011 Paris',tel:'+33 1 84 60 12 34',mail:'bonjour@studiomakossa.fr',niu:'852 431 976 00018',rccm:'FR 47 852431976'},
+  client:{nom:'Brasserie du Faubourg',adresse:'45 quai de Valmy, 75010 Paris',contact:'Mme Claire Lemoine',niu:''},
+  paiement:'Virement bancaire (IBAN FR76 3000 4000 0312 3456 7890 143) ou carte bancaire. Pénalités de retard : 3 fois le taux d\'intérêt légal, indemnité forfaitaire de 40 €.',note:'Merci pour votre confiance. Le planning démarre à réception de l\'acompte.',
+  lignes:[{l:'Atelier de cadrage',d:'Une demi-journée avec votre équipe marketing',q:1,p:900},{l:'Identité visuelle',d:'Logo, palette, typographies, charte de 12 pages',q:1,p:2400},{l:'Site vitrine 6 pages',d:'Design sur mesure, responsive, bilingue FR / EN',q:1,p:4800},{l:'Rédaction des contenus',d:'Par page, optimisée pour le référencement',q:6,p:150}]});
+let store;try{store=JSON.parse(localStorage.getItem('ardoise-eur'))}catch(e){}
 if(!store||!store.docs){store={docs:[],seq:{devis:41,facture:117}};
   // historique d'exemple
-  const H=[['facture','Hôtel La Falaise','Menus et signalétique',1240000,'paye',-58],['facture','Clinique Odyssée','Site et prise de rendez-vous',2150000,'retard',-41],['devis','Brasseries du Littoral','Campagne de lancement',3600000,'accepte',-20],['facture','Café Terroir','Packaging 3 références',780000,'envoye',-9],['devis','Collège Libermann','Application de notes',4200000,'envoye',-4]];
+  const H=[['facture','Hôtel La Falaise','Menus et signalétique',6400,'paye',-58],['facture','Clinique Odyssée','Site et prise de rendez-vous',11500,'retard',-41],['devis','Brasserie du Faubourg','Campagne de lancement',18900,'accepte',-20],['facture','Café Terroir','Packaging 3 références',4200,'envoye',-9],['devis','Collège Libermann','Application de notes',22000,'envoye',-4]];
   H.forEach(([k,c,o,t,s,dd],i)=>{const d=base();d.id='h'+i;d.kind=k;d.client.nom=c;d.objet=o;d.statut=s;d.date=new Date(Date.now()+dd*864e5).toISOString().slice(0,10);d.lignes=[{l:o,d:'',q:1,p:t}];d.numero=num(k,store.seq[k]++,d.date);store.docs.push(d)})}
 function num(k,n,date){return(k==='devis'?'DEV-':'FAC-')+date.slice(0,4)+'-'+String(n).padStart(4,'0')}
 let doc=base();doc.numero=num('devis',store.seq.devis,doc.date);
-const save=()=>{try{localStorage.setItem('ardoise',JSON.stringify(store))}catch(e){}};
+const save=()=>{try{localStorage.setItem('ardoise-eur',JSON.stringify(store))}catch(e){}};
 function persist(){const i=store.docs.findIndex(d=>d.id===doc.id);if(i<0){store.docs.unshift(doc);store.seq[doc.kind]++}else store.docs[i]=doc;save()}
 
 // ——— Calculs ———
-function calc(d=doc){const ht=d.lignes.reduce((s,l)=>s+(+l.q||0)*(+l.p||0),0),rem=ht*(+d.remise||0)/100,net=ht-rem,tva=d.tva?net*.1925:0,ttc=net+tva,pre=d.precompte?net*.055:0,apayer=ttc-pre,ac=apayer*(+d.acompte||0)/100;return{ht,rem,net,tva,ttc,pre,apayer,ac}}
+function calc(d=doc){const ht=d.lignes.reduce((s,l)=>s+(+l.q||0)*(+l.p||0),0),rem=ht*(+d.remise||0)/100,net=ht-rem,tva=d.tva?net*.2:0,ttc=net+tva,pre=d.precompte?net*.05:0,apayer=ttc-pre,ac=apayer*(+d.acompte||0)/100;return{ht,rem,net,tva,ttc,pre,apayer,ac}}
 
 // ——— Formulaire ———
 const get=(o,p)=>p.split('.').reduce((a,k)=>a[k],o),set=(o,p,v)=>{const k=p.split('.');const last=k.pop();k.reduce((a,x)=>a[x],o)[last]=v};
@@ -278,9 +278,9 @@ function render(){const c=calc(),dv=DEV[doc.devise],isD=doc.kind==='devis',ech=n
   $('#nb').textContent=doc.lignes.length+' ligne'+(doc.lignes.length>1?'s':'');
   const ent=Math.floor(c.apayer),dec=Math.round((c.apayer-ent)*100);
   p.innerHTML=`<div class="stamp">PAYÉE</div><div class="in">
-  <div class="dh"><div class="em">${doc.logo?`<img src="${doc.logo}" alt="">`:''}<b>${esc(doc.emetteur.nom)}</b>${esc(doc.emetteur.adresse)}<br>${esc(doc.emetteur.tel)} · ${esc(doc.emetteur.mail)}<br>NIU ${esc(doc.emetteur.niu)} · ${esc(doc.emetteur.rccm)}</div>
+  <div class="dh"><div class="em">${doc.logo?`<img src="${doc.logo}" alt="">`:''}<b>${esc(doc.emetteur.nom)}</b>${esc(doc.emetteur.adresse)}<br>${esc(doc.emetteur.tel)} · ${esc(doc.emetteur.mail)}<br>SIRET ${esc(doc.emetteur.niu)} · TVA ${esc(doc.emetteur.rccm)}</div>
   <div class="tt"><h1>${isD?'Devis':'Facture'}</h1><div class="num">N° ${esc(doc.numero)}</div></div></div>
-  <div class="meta"><div><small>${isD?'Destinataire':'Facturé à'}</small><b>${esc(doc.client.nom)}</b><br>${esc(doc.client.adresse)}${doc.client.contact?'<br>À l\'attention de '+esc(doc.client.contact):''}${doc.client.niu?'<br>NIU '+esc(doc.client.niu):''}</div>
+  <div class="meta"><div><small>${isD?'Destinataire':'Facturé à'}</small><b>${esc(doc.client.nom)}</b><br>${esc(doc.client.adresse)}${doc.client.contact?'<br>À l\'attention de '+esc(doc.client.contact):''}${doc.client.niu?'<br>SIRET '+esc(doc.client.niu):''}</div>
   <div><small>Date d'émission</small>${fd(doc.date)}</div><div><small>${isD?'Valable jusqu\'au':'Échéance'}</small>${fd(ech)}</div></div>
   ${doc.objet?`<div class="obj">${esc(doc.objet)}</div>`:''}
   <table class="t"><thead><tr><th style="width:52%">Désignation</th><th class="r">Qté</th><th class="r">Prix unitaire</th><th class="r">Total HT</th></tr></thead><tbody>
@@ -288,11 +288,11 @@ function render(){const c=calc(),dv=DEV[doc.devise],isD=doc.kind==='devis',ech=n
   <div class="tot"><div class="lettres">Arrêté${isD?' le présent devis':'e la présente facture'} à la somme de :<em>${lettres(ent).replace(/^./,m=>m.toUpperCase())} ${dv.n}${dec?' et '+lettres(dec)+' centimes':''}${doc.tva?' toutes taxes comprises':''}.</em></div>
   <div class="sum"><div><span>Total HT</span><span>${fmt(c.ht)}</span></div>
   ${c.rem?`<div><span>Remise ${doc.remise} %</span><span>− ${fmt(c.rem)}</span></div><div><span>Net HT</span><span>${fmt(c.net)}</span></div>`:''}
-  ${doc.tva?`<div><span>TVA 19,25 %</span><span>${fmt(c.tva)}</span></div>`:''}
-  ${c.pre?`<div><span>Précompte 5,5 %</span><span>− ${fmt(c.pre)}</span></div>`:''}
+  ${doc.tva?`<div><span>TVA 20 %</span><span>${fmt(c.tva)}</span></div>`:''}
+  ${c.pre?`<div><span>Retenue de garantie 5 %</span><span>− ${fmt(c.pre)}</span></div>`:''}
   <div class="gr"><span>Net à payer</span><span>${fmt(c.apayer)}</span></div>
   ${c.ac&&isD?`<div class="ac"><span>Acompte à la commande (${doc.acompte} %)</span><span>${fmt(c.ac)}</span></div>`:''}</div></div>
-  <div class="notes"><div><h4>Paiement</h4>${esc(doc.paiement)}${doc.note?`<h4 style="margin-top:12px">Note</h4>${esc(doc.note)}`:''}</div><div>${isD?'<h4>Bon pour accord</h4>Date, signature et cachet du client<div class="sig">Signature</div>':'<h4>Pénalités</h4>En cas de retard de paiement, des pénalités de 1,5 % par mois pourront être appliquées, conformément à l\'Acte uniforme OHADA.'}</div></div>
+  <div class="notes"><div><h4>Paiement</h4>${esc(doc.paiement)}${doc.note?`<h4 style="margin-top:12px">Note</h4>${esc(doc.note)}`:''}</div><div>${isD?'<h4>Bon pour accord</h4>Date, signature et cachet du client<div class="sig">Signature</div>':'<h4>Pénalités</h4>En cas de retard de paiement, des pénalités égales à trois fois le taux d\'intérêt légal et une indemnité forfaitaire de 40 € pour frais de recouvrement sont exigibles (art. L441-10 du Code de commerce).'}</div></div>
   </div><div class="pf"><span>${esc(doc.emetteur.nom)} · ${esc(doc.emetteur.rccm)}</span><span>Page 1 / 1</span></div>`;
   fit();persist()}
 function fit(){const w=$('#pvw').clientWidth-(innerWidth<980?28:56),s=Math.min(1,w/794);$('#scale').style.transform=`scale(${s})`;$('#scale').style.height=1123*s+'px'}
@@ -307,7 +307,7 @@ const openD=on=>{$('#drawer').classList.toggle('on',on);$('#veil').classList.tog
 $('#list').onclick=()=>openD(true);$('#closeD').onclick=$('#veil').onclick=()=>openD(false);
 function drawDocs(){const F=store.docs.filter(d=>d.kind==='facture'),sum=a=>a.reduce((s,d)=>s+calc(d).apayer,0);
   const enc=sum(F.filter(d=>d.statut==='paye')),att=sum(F.filter(d=>d.statut!=='paye')),ret=F.filter(d=>d.statut==='retard').length,dv=store.docs.filter(d=>d.kind==='devis'),acc=dv.filter(d=>d.statut==='accepte').length;
-  $('#kpi').innerHTML=`<div><b>${fmt(enc,'XAF')}</b><span>encaissé</span></div><div><b>${fmt(att,'XAF')}</b><span>en attente${ret?' · '+ret+' en retard':''}</span></div><div><b>${dv.length}</b><span>devis émis</span></div><div><b>${dv.length?Math.round(acc/dv.length*100):0} %</b><span>taux d'acceptation</span></div>`;
+  $('#kpi').innerHTML=`<div><b>${fmt(enc,'EUR')}</b><span>encaissé</span></div><div><b>${fmt(att,'EUR')}</b><span>en attente${ret?' · '+ret+' en retard':''}</span></div><div><b>${dv.length}</b><span>devis émis</span></div><div><b>${dv.length?Math.round(acc/dv.length*100):0} %</b><span>taux d'acceptation</span></div>`;
   const L={brouillon:'Brouillon',envoye:'Envoyé',paye:'Payée',retard:'En retard',accepte:'Accepté'};
   $('#docs').innerHTML=store.docs.map(d=>`<div class="doc" data-id="${d.id}"><b>${esc(d.client.nom)||'Sans client'}</b><span class="r">${fmt(calc(d).apayer,d.devise)}</span><small>${d.numero} · ${new Date(d.date).toLocaleDateString('fr-FR')}</small><span class="pill ${d.statut}">${L[d.statut]}</span></div>`).join('')}
 $('#docs').onclick=e=>{const r=e.target.closest('.doc');if(!r)return;doc=store.docs.find(d=>d.id===r.dataset.id);openD(false);fill()};
