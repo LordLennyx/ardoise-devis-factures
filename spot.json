@@ -1,0 +1,21 @@
+{
+  "titre": "<em>Ardoise</em>, devis et factures",
+  "type": "Générateur de devis et factures",
+  "sous_titre": "Aperçu A4 en direct, TVA et montant en lettres, export PDF",
+  "couleur": "#0d4f4a",
+  "graine": 10,
+  "voix": [[3.3, "Ardoise, un générateur de devis et de factures,"], [8.4, "chaque ligne met à jour l'aperçu, les taxes, et le montant en toutes lettres,"], [16.4, "on change de style, le devis devient facture, et tout se suit au même endroit."]],
+  "etapes": [
+    {"t": "wait", "ms": 600},
+    {"t": "click", "sel": "#cat button:nth-child(3)", "pause": 700},
+    {"t": "eval", "js": "document.querySelector('#pvw').scrollTo({top:420,behavior:'smooth'})", "pause": 900},
+    {"t": "type", "sel": "#ed [data-b=remise]", "text": "5", "delay": 60, "pause": 1100},
+    {"t": "eval", "js": "document.querySelector('#pvw').scrollTo({top:0,behavior:'smooth'});document.querySelector('#ed').scrollTo({top:9999,behavior:'smooth'})", "pause": 900},
+    {"t": "click", "sel": "#tpl [data-t=bandeau]", "pause": 900},
+    {"t": "click", "sel": "#cols button:nth-child(2)", "pause": 800},
+    {"t": "click", "sel": "#tpl [data-t=marge]", "pause": 1000},
+    {"t": "click", "sel": "#convert", "pause": 1400},
+    {"t": "eval", "js": "const s=document.querySelector('[data-b=statut]');s.value='paye';s.dispatchEvent(new Event('input',{bubbles:true}))", "pause": 1400},
+    {"t": "click", "sel": "#list", "pause": 2200}
+  ]
+}
